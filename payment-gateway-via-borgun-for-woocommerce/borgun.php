@@ -3,7 +3,7 @@
   Plugin Name: Payment gateway via Teya SecurePay for WooCommerce
   Plugin URI: https://profiles.wordpress.org/tacticais/
   Description: Extends WooCommerce with a <a href="https://docs.borgun.is/hostedpayments/securepay/" target="_blank">Teya SecurePay</a> gateway.
-  Version: 1.3.33
+  Version: 1.3.34
   Author: Tactica
   Author URI: http://tactica.is
   Text Domain: borgun_woocommerce
@@ -14,7 +14,7 @@
   License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-define( 'BORGUN_VERSION', '1.3.33' );
+define( 'BORGUN_VERSION', '1.3.34' );
 define( 'BORGUN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BORGUN_URL', plugin_dir_url( __FILE__ ) );
 
@@ -25,6 +25,20 @@ function borgun_wc_active() {
 		return false;
 	}
 }
+
+/**
+ * Declare plugin compatibility with WooCommerce HPOS.
+ *
+ * @since 4.9.0
+ */
+add_action(
+	'before_woocommerce_init',
+	function() {
+		if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', __FILE__, true );
+		}
+	}
+);
 
 add_action( 'plugins_loaded', 'woocommerce_borgun_init', 0 );
 function woocommerce_borgun_init() {

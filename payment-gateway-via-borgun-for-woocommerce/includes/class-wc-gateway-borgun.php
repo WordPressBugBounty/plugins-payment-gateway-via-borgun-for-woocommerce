@@ -434,10 +434,7 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 	function check_order_refund_hash( $order ) {
 		$hash             = array();
 		$hash[]           = $this->merchantid;
-		$refundid = get_post_meta( $order->get_id(), '_' . $this->id . '_refundid', true );
-		if(empty($refundid)){
-			$refundid = $order->get_meta('_' . $this->id . '_refundid');
-		}
+		$refundid = $order->get_meta('_' . $this->id . '_refundid');
 		$hash[]           = $refundid;
 		$hash = apply_filters( 'borgun_'.$this->id.'_check_order_refund_hash', $hash, $order );
 		$message          = implode( '|', $hash );
@@ -940,10 +937,7 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 			return new WP_Error( 'error', __( 'Refund failed.', 'borgun_woocommerce' ) );
 		}
 
-		$refundid = get_post_meta( $order_id , '_' . $this->id . '_refundid', true );
-		if(empty($refundid)){
-			$refundid = $order->get_meta('_' . $this->id . '_refundid');
-		}
+		$refundid = $order->get_meta('_' . $this->id . '_refundid');
 
 		if ( 'yes' == $this->testmode ) {
 			$borgun_adr = self::BORGUN_ENDPOINT_SANDBOX . 'refund.aspx';

@@ -2,10 +2,10 @@
 Contributors: tacticais
 Tags: credit card, gateway, saltPay, teya, woocommerce
 Requires at least: 4.4
-Tested up to: 6.6.1
-WC tested up to: 9.1.4
+Tested up to: 6.7.1
+WC tested up to: 9.4.2
 WC requires at least: 3.2.3
-Stable tag: 1.3.33
+Stable tag: 1.3.34
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -39,6 +39,9 @@ Yes, the plugin supports test mode.
 3. Payment screen
 
 == Changelog ==
+
+= 1.3.34 =
+* Tested with WordPress 6.7.1 and WooCommerce 9.4.2
 
 = 1.3.33 =
 * Add skipreceiptpage option to settings

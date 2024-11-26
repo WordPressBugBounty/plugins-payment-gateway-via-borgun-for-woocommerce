@@ -6,7 +6,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/payment-gateway-"
 "via-borgun-for-woocommerce\n"
 "POT-Creation-Date: 2020-04-10T13:50:33+00:00\n"
-"PO-Revision-Date: 2023-11-06 10:32+0000\n"
+"PO-Revision-Date: 2024-11-26 12:42+0000\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: Icelandic\n"
 "Language: is_IS\n"
@@ -17,67 +17,97 @@ msgstr ""
 "X-Generator: Loco https://localise.biz/\n"
 "X-Domain: borgun_woocommerce\n"
 
-#: borgun.php:309
+#: includes/class-wc-gateway-borgun.php:317
+msgid "Bulgarian"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:342
 msgid "Buyer will be sent to this page after a successful payment."
 msgstr ""
 
-#: borgun.php:321
+#: includes/class-wc-gateway-borgun.php:354
 msgid "Buyer will be sent to this page if an unexpected error occurs."
 msgstr ""
 
-#: borgun.php:315
+#: includes/class-wc-gateway-borgun.php:348
 msgid ""
 "Buyer will be sent to this page if he pushes the cancel button instead of "
 "finalizing the payment."
 msgstr ""
 
-#: borgun.php:297
+#: includes/class-wc-gateway-borgun.php:324
 msgid "Buyer will see this text after woocommerce order create."
 msgstr ""
 
-#: borgun.php:303
+#: includes/class-wc-gateway-borgun.php:330
 msgid "Buyer will see this text before redirecting to Teya"
 msgstr ""
 
-#: borgun.php:558
+#: includes/class-wc-gateway-borgun.php:612
 msgid "Cancel order &amp; restore cart"
 msgstr ""
 
-#: borgun.php:313
+#: includes/class-wc-gateway-borgun.php:346
 msgid "Cancel Page URL"
 msgstr ""
 
-#: borgun.php:195
-msgid ""
-"Current Store currency is not valid for Teya gateway. Must be in ISK, USD, "
-"EUR, GBP, DKK, NOK, SEK, CHF, JPY, CAD, HUF"
+#: includes/class-wc-gateway-borgun.php:653
+#, php-format
+msgid "check_borgun_response, posted: %s"
 msgstr ""
 
-#: borgun.php:239
+#: includes/class-wc-gateway-borgun.php:203
+msgid ""
+"Current Store currency is not supported by Teya SecurePay. Allowed values "
+"are GBP, USD, EUR, DKK, NOK, SEK, CHF, CAD, HUF, BHD, AUD, RUB, PLN, RON, "
+"HRK, CZK and ISK."
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:309
+msgid "Czech"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:313
+msgid "Danish"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:365
+msgid "Debug"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:253
 msgid "Description"
 msgstr ""
 
-#: borgun.php:504
+#: includes/class-wc-gateway-borgun.php:558
 msgid "Discount"
 msgstr ""
 
-#: borgun.php:246
+#: includes/class-wc-gateway-borgun.php:306
+msgid "Dutch"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:366
+msgid "Enable Debug Mode"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:260
 msgid "Enable Test Mode"
 msgstr ""
 
-#: borgun.php:227
+#: includes/class-wc-gateway-borgun.php:241
 msgid "Enable Teya"
 msgstr ""
 
-#: borgun.php:226
+#: includes/class-wc-gateway-borgun.php:240
 msgid "Enable/Disable"
 msgstr ""
 
-#: borgun.php:282
+#: includes/class-wc-gateway-borgun.php:296
 msgid "English"
 msgstr ""
 
-#: borgun.php:319
+#: includes/class-wc-gateway-borgun.php:352
 msgid "Error Page URL"
 msgstr ""
 
@@ -87,16 +117,28 @@ msgid ""
 "is/hostedpayments/securepay/\" target=\"_blank\">Teya SecurePay</a> gateway."
 msgstr ""
 
-#: borgun.php:284
+#: includes/class-wc-gateway-borgun.php:315
+msgid "Faroese"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:314
+msgid "Finnish"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:298
 msgid "French"
 msgstr ""
 
-#: borgun.php:195
+#: includes/class-wc-gateway-borgun.php:203
 msgid "Gateway Disabled:"
 msgstr ""
 
-#: borgun.php:283
+#: includes/class-wc-gateway-borgun.php:297
 msgid "German"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:311
+msgid "Hrvatski"
 msgstr ""
 
 #. Author URI of the plugin
@@ -107,55 +149,64 @@ msgstr ""
 msgid "https://profiles.wordpress.org/tacticais/"
 msgstr ""
 
-#: borgun.php:290
+#: includes/class-wc-gateway-borgun.php:304
 msgid "Hungarian"
 msgstr ""
 
-#: borgun.php:281
+#: includes/class-wc-gateway-borgun.php:295
 msgid "Icelandic"
 msgstr ""
 
-#: borgun.php:285
+#: includes/class-wc-gateway-borgun.php:301
 msgid "Italian"
 msgstr ""
 
-#: borgun.php:276
+#: includes/class-wc-gateway-borgun.php:290
 msgid "Language of Payment Page"
 msgstr ""
 
-#: borgun.php:258
+#: includes/class-wc-gateway-borgun.php:318
+msgid "Lithuanian"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:272
 msgid "Merchant ID"
 msgstr ""
 
-#: borgun.php:270
+#: includes/class-wc-gateway-borgun.php:308
+msgid "Norwegian"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:284
 msgid "Notification Email"
 msgstr ""
 
-#: borgun.php:647
+#: includes/class-wc-gateway-borgun.php:707
 msgid "Order hash doesn't match"
 msgstr ""
 
-#: borgun.php:325
+#: includes/class-wc-gateway-borgun.php:358
 msgid "Order line items grouping"
 msgstr ""
 
-#: borgun.php:561
+#: includes/class-wc-gateway-borgun.php:615
 msgid "Pay via Teya"
 msgstr ""
 
-#: borgun.php:191 borgun.php:242
+#: includes/class-wc-gateway-borgun.php:199
+#: includes/class-wc-gateway-borgun.php:256
 msgid "Pay with your credit card via Teya."
 msgstr ""
 
-#: borgun.php:836
+#: includes/class-wc-gateway-borgun.php:896
 msgid "Payment canceled by the customer"
 msgstr ""
 
-#: borgun.php:823
+#: includes/class-wc-gateway-borgun.php:883
 msgid "Payment error"
 msgstr ""
 
-#: borgun.php:252
+#: includes/class-wc-gateway-borgun.php:266
 msgid "Payment Gateway ID"
 msgstr ""
 
@@ -163,66 +214,86 @@ msgstr ""
 msgid "Payment gateway via Teya SecurePay for WooCommerce"
 msgstr ""
 
-#: borgun.php:248
+#: includes/class-wc-gateway-borgun.php:262
 msgid "Place the payment gateway in development mode."
 msgstr ""
 
-#: borgun.php:286
+#: includes/class-wc-gateway-borgun.php:307
+msgid "Polish"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:302
 msgid "Portugese"
 msgstr ""
 
-#: borgun.php:295
+#: includes/class-wc-gateway-borgun.php:322
 msgid "Receipt text"
 msgstr ""
 
-#: borgun.php:301
+#: includes/class-wc-gateway-borgun.php:328
 msgid "Redirect text"
 msgstr ""
 
-#: borgun.php:877
+#: includes/class-wc-gateway-borgun.php:937
 msgid "Refund failed."
 msgstr ""
 
-#: borgun.php:922
+#: includes/class-wc-gateway-borgun.php:982
 #, php-format
 msgid "Refunded %s %s via Teya"
 msgstr ""
 
-#: borgun.php:287
+#: includes/class-wc-gateway-borgun.php:312
+msgid "Romanian"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:299
 msgid "Russian"
 msgstr ""
 
-#: borgun.php:264
+#: includes/class-wc-gateway-borgun.php:278
 msgid "Secret Key"
 msgstr ""
 
-#: borgun.php:278
+#: includes/class-wc-gateway-borgun.php:292
 msgid "Select which language to show on Payment Page."
 msgstr ""
 
-#: borgun.php:326
+#: includes/class-wc-gateway-borgun.php:359
 msgid "Send order as 1 line item"
 msgstr ""
 
+#: includes/class-wc-gateway-borgun.php:316
+msgid "Serbian"
+msgstr ""
+
 #. %s: Shipping
-#: borgun.php:479
+#: includes/class-wc-gateway-borgun.php:533
 #, php-format
 msgid "Shipping (%s)"
 msgstr "Sendingarkostnaður (%s)"
 
-#: borgun.php:291
-msgid "Slovene"
+#: includes/class-wc-gateway-borgun.php:334
+msgid "Skip Teya receipt page"
 msgstr ""
 
-#: borgun.php:288
+#: includes/class-wc-gateway-borgun.php:310
+msgid "Slovak"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:303
+msgid "Slovenian"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:300
 msgid "Spanish"
 msgstr ""
 
-#: borgun.php:307
+#: includes/class-wc-gateway-borgun.php:340
 msgid "Success Page URL"
 msgstr ""
 
-#: borgun.php:289
+#: includes/class-wc-gateway-borgun.php:305
 msgid "Swedish"
 msgstr ""
 
@@ -230,73 +301,77 @@ msgstr ""
 msgid "Tactica"
 msgstr ""
 
-#: borgun.php:486
+#: includes/class-wc-gateway-borgun.php:540
 msgid "Taxes"
 msgstr "Virðisaukaskattur"
 
-#: borgun.php:146 borgun.php:190 borgun.php:236
+#: includes/class-wc-gateway-borgun.php:135
+#: includes/class-wc-gateway-borgun.php:198
+#: includes/class-wc-gateway-borgun.php:250
 msgid "Teya"
 msgstr ""
 
-#: borgun.php:927
+#: includes/class-wc-gateway-borgun.php:987
 #, php-format
 msgid "Teya error: %s, Amount: %s %s"
 msgstr ""
 
-#: borgun.php:619
+#: includes/class-wc-gateway-borgun.php:679
 msgid "Teya payment completed"
 msgstr ""
 
-#: borgun.php:147
+#: includes/class-wc-gateway-borgun.php:136
 msgid ""
 "Teya Secure Payment Page enables merchants to sell products securely on the "
 "web with minimal integration effort"
 msgstr ""
 
-#: borgun.php:245
+#: includes/class-wc-gateway-borgun.php:259
 msgid "Teya Test Mode"
 msgstr ""
 
-#: borgun.php:168 borgun.php:298
+#: includes/class-wc-gateway-borgun.php:157
+#: includes/class-wc-gateway-borgun.php:325
 msgid ""
 "Thank you - your order is now pending payment. We are now redirecting you to "
 "Teya to make payment."
 msgstr ""
 
-#: borgun.php:169 borgun.php:304
+#: includes/class-wc-gateway-borgun.php:158
+#: includes/class-wc-gateway-borgun.php:331
 msgid ""
 "Thank you for your order. We are now redirecting you to Teya to make payment."
 msgstr ""
 
-#: borgun.php:241
+#: includes/class-wc-gateway-borgun.php:255
 msgid "This controls the description which the user sees during checkout."
 msgstr ""
 
-#: borgun.php:235
+#: includes/class-wc-gateway-borgun.php:249
 msgid "This controls the title which the user sees during checkout."
 msgstr ""
 
-#: borgun.php:272
+#: includes/class-wc-gateway-borgun.php:286
 msgid "This is the email Teya will send payment receipts to."
 msgstr ""
 
-#: borgun.php:260
+#: includes/class-wc-gateway-borgun.php:274
 msgid "This is the ID supplied by Teya."
 msgstr ""
 
-#: borgun.php:254
+#: includes/class-wc-gateway-borgun.php:268
 msgid "This is the Payment Gateway ID supplied by Teya."
 msgstr ""
 
-#: borgun.php:266
+#: includes/class-wc-gateway-borgun.php:280
 msgid "This is the Secret Key supplied by Teya."
 msgstr ""
 
-#: borgun.php:233
+#: includes/class-wc-gateway-borgun.php:247
 msgid "Title"
 msgstr "Titill"
 
-#: borgun.php:328
+#: includes/class-wc-gateway-borgun.php:361
 msgid ""
 "You can uncheck this if you don't use discounts and have integer quantities."
 msgstr ""
