@@ -377,14 +377,16 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 	 * @return false|string
 	 */
 	function check_hash( $order ) {
+		$currency = $order->get_currency();
+		$order_total = number_format( $order->get_total(), $this->get_price_decimals($currency), '.', '' );
 		$ipnUrl           = WC()->api_request_url( 'WC_Gateway_Borgun' );
 		$hash             = array();
 		$hash[]           = $this->merchantid;
 		$hash[]           = esc_url_raw( $this->get_return_url( $order ) );
 		$hash[]           = $ipnUrl;
 		$hash[]           = 'WC-' . $order->get_id();
-		$hash[]           = number_format( $order->get_total(), wc_get_price_decimals(), '.', '' );
-		$hash[]           = $order->get_currency();
+		$hash[]           = $order_total;
+		$hash[]           = $currency;
 		$hash = apply_filters( 'borgun_'.$this->id.'_check_hash', $hash, $order );
 		$message          = implode( '|', $hash );
 
@@ -407,13 +409,14 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 	 * @return false|string
 	 */
 	function check_order_hash( $order ) {
+		$currency = $order->get_currency();
+		$order_total = number_format( $order->get_total(), $this->get_price_decimals($currency), '.', '' );
 		$hash             = array();
 		$hash[]           = 'WC-' . $order->get_id();
-		$hash[]           = number_format( $order->get_total(), wc_get_price_decimals(), '.', '' );
-		$hash[]           = $order->get_currency();
+		$hash[]           = $order_total;
+		$hash[]           = $currency;
 		$hash = apply_filters( 'borgun_'.$this->id.'_check_order_hash', $hash, $order );
 		$message          = implode( '|', $hash );
-		//$CheckHashMessage = utf8_encode( trim( $message ) );
 		$CheckHashMessage = trim( $message );
 
 		if (extension_loaded('mbstring')) {
@@ -458,13 +461,16 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 		//Teya Args
 		global $wp_version;
 		$ipnUrl = WC()->api_request_url( 'WC_Gateway_Borgun' );
+		$currency = $order->get_currency();
+		$decimals = $this->get_price_decimals($currency);
+		$order_total = number_format( $order->get_total(), $decimals, '.', '' );
 		$borgun_args = array(
 			'merchantid'             => $this->merchantid,
 			'paymentgatewayid'       => $this->paymentgatewayid,
 			'checkhash'              => $this->check_hash( $order ),
 			'orderid'                => 'WC-' . $order->get_id(),
 			'reference'              => $order->get_order_number(),
-			'currency'               => $order->get_currency(),
+			'currency'               => $currency,
 			'language'               => $this->langpaymentpage,
 			'SourceSystem'           => 'WP' . $wp_version . ' - WC' . WC()->version . ' - BRG' . BORGUN_VERSION,
 			'buyeremail'             => $order->get_billing_email(),
@@ -472,7 +478,7 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 			'returnurlsuccessserver' => $ipnUrl,
 			'returnurlcancel'        =>$order->get_checkout_payment_url( true ),
 			'returnurlerror'         => $order->get_checkout_payment_url( true ),
-			'amount'                 => number_format( $order->get_total(), wc_get_price_decimals(), '.', '' ),
+			'amount'                 => $order_total,
 			'pagetype'               => '0',
 			'skipreceiptpage'        => ($this->skipreceiptpage) ? '1' : '0',
 			'merchantemail'          => $this->notification_email,
@@ -517,12 +523,12 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 							$item_name .= ' ( ' . $meta . ' )';
 						}
 						$item_name = strip_tags($item_name);
-						$item_subtotal = number_format( $order->get_item_subtotal( $item, $include_tax ), wc_get_price_decimals(), '.', '' );
+						$item_subtotal = number_format( $order->get_item_subtotal( $item, $include_tax ), $decimals, '.', '' );
 						$itemamount = $item_subtotal * $item['qty'];
 						$borgun_args[ 'itemdescription_' . $item_loop ] = html_entity_decode( $item_name, ENT_NOQUOTES, 'UTF-8' );
 						$borgun_args[ 'itemcount_' . $item_loop ]       = $item['qty'];
-						$borgun_args[ 'itemunitamount_' . $item_loop ]  = number_format( $item_subtotal, wc_get_price_decimals(), '.', '' );
-						$borgun_args[ 'itemamount_' . $item_loop ]      = number_format( $itemamount, wc_get_price_decimals(), '.', '' );
+						$borgun_args[ 'itemunitamount_' . $item_loop ]  = number_format( $item_subtotal, $decimals, '.', '' );
+						$borgun_args[ 'itemamount_' . $item_loop ]      = number_format( $itemamount, $decimals, '.', '' );
 						$item_loop ++;
 					}
 				}
@@ -532,15 +538,15 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 					$shipping_total = $this->round( $shipping_total, $order );
 					$borgun_args[ 'itemdescription_' . $item_loop ] = sprintf( /* translators: %s: Shipping */ __('Shipping (%s)', 'borgun_woocommerce' ), $order->get_shipping_method() );
 					$borgun_args[ 'itemcount_' . $item_loop ]       = 1;
-					$borgun_args[ 'itemunitamount_' . $item_loop ]  = number_format( $shipping_total, wc_get_price_decimals(), '.', '' );
-					$borgun_args[ 'itemamount_' . $item_loop ]      = number_format( $shipping_total, wc_get_price_decimals(), '.', '' );
+					$borgun_args[ 'itemunitamount_' . $item_loop ]  = number_format( $shipping_total, $decimals, '.', '' );
+					$borgun_args[ 'itemamount_' . $item_loop ]      = number_format( $shipping_total, $decimals, '.', '' );
 					$item_loop ++;
 				}
 				if (!$include_tax && $order->get_total_tax() > 0){
 					$borgun_args[ 'itemdescription_' . $item_loop ] = __('Taxes', 'borgun_woocommerce' );
 					$borgun_args[ 'itemcount_' . $item_loop ]       = 1;
-					$borgun_args[ 'itemunitamount_' . $item_loop ]  = number_format( $order->get_total_tax(), wc_get_price_decimals(), '.', '' );
-					$borgun_args[ 'itemamount_' . $item_loop ]      = number_format( $order->get_total_tax(), wc_get_price_decimals(), '.', '' );
+					$borgun_args[ 'itemunitamount_' . $item_loop ]  = number_format( $order->get_total_tax(), $decimals, '.', '' );
+					$borgun_args[ 'itemamount_' . $item_loop ]      = number_format( $order->get_total_tax(), $decimals, '.', '' );
 					$item_loop ++;
 				}
 				if ( $order->get_total_discount() > 0 ) {
@@ -557,8 +563,8 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 					$total_discount = $this->round($total_discount, $order);
 					$borgun_args[ 'itemdescription_' . $item_loop ] = __('Discount', 'borgun_woocommerce' );
 					$borgun_args[ 'itemcount_' . $item_loop ]       = 1;
-					$borgun_args[ 'itemunitamount_' . $item_loop ]  = - number_format( $total_discount, wc_get_price_decimals(), '.', '' );
-					$borgun_args[ 'itemamount_' . $item_loop ]      = - number_format( $total_discount, wc_get_price_decimals(), '.', '' );
+					$borgun_args[ 'itemunitamount_' . $item_loop ]  = - number_format( $total_discount, $decimals, '.', '' );
+					$borgun_args[ 'itemamount_' . $item_loop ]      = - number_format( $total_discount, $decimals, '.', '' );
 					$item_loop ++;
 				}
 			}
@@ -991,5 +997,35 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 		}
 
 		return false;
+	}
+
+
+	/**
+	 * Get price_decimals depending on multi-currency settings
+	 *
+	 * @param  string $currency
+	 * 
+	 * @return int
+	*/
+	private function get_price_decimals($currency) {
+		global $woocommerce_wpml;
+
+		$decimals = wc_get_price_decimals();
+
+		// Override price decimals depending on woocommerce-multilingual multi-currency settings
+		if( !empty($woocommerce_wpml) &&
+			defined('WCML_MULTI_CURRENCIES_INDEPENDENT') &&
+			WCML_MULTI_CURRENCIES_INDEPENDENT === (int) $woocommerce_wpml->settings['enable_multi_currency']
+		) {
+			$currency_options = $woocommerce_wpml->get_setting( 'currency_options' );
+			if( !empty($currency_options) &&
+				isset($currency_options[$currency]) &&
+				isset($currency_options[$currency]['num_decimals'])
+			){
+				$decimals = $currency_options[$currency]['num_decimals'];
+			}
+		}
+
+		return apply_filters($this->id.'_price_decimals', $decimals, $currency);
 	}
 }
