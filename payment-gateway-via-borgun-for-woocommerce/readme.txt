@@ -2,10 +2,10 @@
 Contributors: tacticais
 Tags: credit card, gateway, saltPay, teya, woocommerce
 Requires at least: 4.4
-Tested up to: 6.7.1
-WC tested up to: 9.4.3
+Tested up to: 6.8.1
+WC tested up to: 9.8.5
 WC requires at least: 3.2.3
-Stable tag: 1.3.35
+Stable tag: 1.3.36
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -40,6 +40,8 @@ Yes, the plugin supports test mode.
 
 == Changelog ==
 
+= 1.3.36 =
+* Tested with WordPress 6.8.1 and WooCommerce 9.8.5
 
 = 1.3.35 =
 * Teya gateway payment parameters have been adjusted to use 'WooCommerce Multilingual & Multicurrency' multilingual settings
