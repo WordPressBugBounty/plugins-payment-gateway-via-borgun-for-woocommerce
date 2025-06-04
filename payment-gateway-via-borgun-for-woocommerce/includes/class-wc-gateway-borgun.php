@@ -130,7 +130,7 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 
 	public function __construct() {
 		$this->id                 = 'borgun';
-		$this->icon               = BORGUN_URL . '/cards.png';
+		$this->icon               = BORGUN_URL . '/teya.png';
 		$this->has_fields         = false;
 		$this->method_title       =  __('Teya', 'borgun_woocommerce');
 		$this->method_description = __('Teya Secure Payment Page enables merchants to sell products securely on the web with minimal integration effort', 'borgun_woocommerce');
@@ -369,6 +369,16 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 				'desc_tip'    => true
 			)
 		);
+	}
+
+	/**
+	 * Get gateway icon.
+	 *
+	 * @return string
+	 */
+	public function get_icon() {
+		$icon_html = '<img class="wc-borgun-payment-gateway-checkout-logo" src="' . $this->icon . '" alt="' . esc_html( $this->get_method_title() ) . '" />';
+		return apply_filters( 'woocommerce_gateway_icon', $icon_html, $this->id );
 	}
 
 	/**

@@ -97,6 +97,7 @@ final class PaymentMethodBorgunRegistration extends AbstractPaymentMethodType {
 			'title'       => $this->get_setting( 'title' ),
 			'description' => $this->get_setting( 'description' ),
 			'supports'    => [ 'products' ],
+			'logoUrl'     => plugin_dir_url( __DIR__ ) . 'teya.png'
 		];
 	}
 
