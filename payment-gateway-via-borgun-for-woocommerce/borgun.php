@@ -3,7 +3,7 @@
   Plugin Name: Payment gateway via Teya SecurePay for WooCommerce
   Plugin URI: https://profiles.wordpress.org/tacticais/
   Description: Extends WooCommerce with a <a href="https://docs.borgun.is/hostedpayments/securepay/" target="_blank">Teya SecurePay</a> gateway.
-  Version: 1.3.38
+  Version: 1.3.41
   Author: Tactica
   Author URI: http://tactica.is
   Text Domain: borgun_woocommerce
@@ -14,17 +14,9 @@
   License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
-define( 'BORGUN_VERSION', '1.3.38' );
+define( 'BORGUN_VERSION', '1.3.41' );
 define( 'BORGUN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BORGUN_URL', plugin_dir_url( __FILE__ ) );
-
-function borgun_wc_active() {
-	if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
-		return true;
-	} else {
-		return false;
-	}
-}
 
 /**
  * Declare plugin compatibility with WooCommerce HPOS.
@@ -39,16 +31,16 @@ add_action(
 	}
 );
 
-add_action( 'plugins_loaded', 'woocommerce_borgun_init', 0 );
-function woocommerce_borgun_init() {
+add_action( 'plugins_loaded', 'borgun_woocommerce_init', 0 );
+function borgun_woocommerce_init() {
 	if ( ! class_exists( 'WC_Payment_Gateway' ) ) {
 		return;
 	}
 
 	//Add the gateway to woocommerce
 	require_once BORGUN_DIR . '/includes/class-wc-gateway-borgun.php';
-	add_filter( 'woocommerce_payment_gateways', 'add_borgun_gateway' );
-	function add_borgun_gateway( $methods ) {
+	add_filter( 'woocommerce_payment_gateways', 'borgun_woocommerce_gateway' );
+	function borgun_woocommerce_gateway( $methods ) {
 		$methods[] = 'WC_Gateway_Borgun';
 
 		return $methods;
@@ -71,16 +63,18 @@ function woocommerce_borgun_init() {
 	}
 }
 
-add_action( 'plugins_loaded', 'woocommerce_borgun_textdomain' );
-function woocommerce_borgun_textdomain(){
+add_action( 'plugins_loaded', 'borgun_woocommerce_textdomain' );
+function borgun_woocommerce_textdomain(){
 	global $wp_version;
 
 	// Default languages directory for Saltpay.
 	$lang_dir = BORGUN_DIR . 'languages/';
 	$lang_dir = apply_filters( 'borgun_languages_directory', $lang_dir );
 
+	// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 	$current_lang = apply_filters( 'wpml_current_language', NULL );
 	if($current_lang){
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$languages = apply_filters( 'wpml_active_languages', NULL );
 		$locale = ( isset($languages[$current_lang]) && isset($languages[$current_lang]['default_locale']) ) ? $languages[$current_lang]['default_locale'] : '' ;
 	}else{
@@ -130,4 +124,31 @@ function borgun_woocommerce_borgun_assets() {
       wp_enqueue_style( 'teya-styles' );
     }
   }
+}
+
+/**
+ * Check API response on order-received wc_endpoint
+ *
+ */
+add_action( 'wp', 'borgun_woocommerce_check_borgun_response', 10);
+function borgun_woocommerce_check_borgun_response() {
+	if (!is_checkout() || !is_wc_endpoint_url( 'order-received' ) ) return;
+
+	global $wp;
+	$order_id = absint( $wp->query_vars['order-received'] ?? 0 );
+	if(!$order_id) return;
+
+	$order = wc_get_order( $order_id );
+	if ( !$order || is_wp_error( $order ) ) return;
+
+	if( $order->is_paid() ) return;
+
+	if( $order->get_payment_method() != 'borgun' ) return;
+
+	$payment_gateways = WC()->payment_gateways()->payment_gateways();
+	if ( !isset( $payment_gateways['borgun'] ) ) return;
+
+	$gateway = $payment_gateways['borgun'];
+	if( method_exists($gateway, 'check_confirmation_borgun_response') )
+		$gateway->check_confirmation_borgun_response($order);
 }

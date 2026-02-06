@@ -169,8 +169,8 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 		// Hooks
 		add_action( 'woocommerce_receipt_' . $this->id, array( $this, 'receipt_page' ) );
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-		add_action( 'woocommerce_api_wc_gateway_borgun', array( $this, 'check_borgun_response' ) );
-		add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'check_borgun_response' ) );
+		add_action( 'woocommerce_api_wc_gateway_borgun', array( $this, 'handle_webhook_callback' ) );
+		add_action( 'woocommerce_thankyou_' . $this->id, array( $this, 'success_page_redirect' ) );
 		add_action( 'before_woocommerce_pay', array( $this, 'checkout_payment_handler'), 9 );
 		if ( ! $this->is_valid_for_use() ) {
 			$this->enabled = false;
@@ -195,12 +195,12 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 
 	public function admin_options() {
 		?>
-		<h3> <?php _e( 'Teya', 'borgun_woocommerce' ); ?></h3>
-		<p> <?php _e( 'Pay with your credit card via Teya.', 'borgun_woocommerce' ); ?></p>
+		<h3> <?php esc_html_e( 'Teya', 'borgun_woocommerce' ); ?></h3>
+		<p> <?php esc_html_e( 'Pay with your credit card via Teya.', 'borgun_woocommerce' ); ?></p>
 		<?php if ( $this->is_valid_for_use() ) : ?>
 			<table class="form-table"><?php $this->generate_settings_html(); ?></table>
 		<?php else : ?>
-			<div class="inline error"><p><strong><?php _e( 'Gateway Disabled:', 'borgun_woocommerce' ); ?></strong> <?php _e( 'Current Store currency is not supported by Teya SecurePay. Allowed values are GBP, USD, EUR, DKK, NOK, SEK, CHF, CAD, HUF, BHD, AUD, RUB, PLN, RON, HRK, CZK and ISK.', 'borgun_woocommerce' ); ?></p></div>
+			<div class="inline error"><p><strong><?php esc_html_e( 'Gateway Disabled:', 'borgun_woocommerce' ); ?></strong> <?php esc_html_e( 'Current Store currency is not supported by Teya SecurePay. Allowed values are GBP, USD, EUR, DKK, NOK, SEK, CHF, CAD, HUF, BHD, AUD, RUB, PLN, RON, HRK, CZK and ISK.', 'borgun_woocommerce' ); ?></p></div>
 			<?php
 		endif;
 	}
@@ -333,7 +333,7 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 			'skipreceiptpage'=> array(
 				'title'       =>  __('Skip Teya receipt page', 'borgun_woocommerce'),
 				'type'        => 'checkbox',
-				'description' => __('If checked Teya receipt page is not displayed and the buyer is redirected to the Success Page URL upon successful payment.'),
+				'description' => __('If checked Teya receipt page is not displayed and the buyer is redirected to the Success Page URL upon successful payment.', 'borgun_woocommerce'),
 				'default'     => 'yes'
 			),
 			'successurl'         => array(
@@ -378,7 +378,7 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 	 */
 	public function get_icon() {
 		$icon_html = '<img class="wc-borgun-payment-gateway-checkout-logo" src="' . $this->icon . '" alt="' . esc_html( $this->get_method_title() ) . '" />';
-		return apply_filters( 'woocommerce_gateway_icon', $icon_html, $this->id );
+		return apply_filters( 'borgun_gateway_icon', $icon_html, $this->id );
 	}
 
 	/**
@@ -386,13 +386,13 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 	 *
 	 * @return false|string
 	 */
-	function check_hash( $order ) {
+	function check_hash( $order, $payment_return_url='') {
 		$currency = $order->get_currency();
 		$order_total = number_format( $order->get_total(), $this->get_price_decimals($currency), '.', '' );
 		$ipnUrl           = WC()->api_request_url( 'WC_Gateway_Borgun' );
 		$hash             = array();
 		$hash[]           = $this->merchantid;
-		$hash[]           = esc_url_raw( $this->get_return_url( $order ) );
+		$hash[]           = $payment_return_url;
 		$hash[]           = $ipnUrl;
 		$hash[]           = 'WC-' . $order->get_id();
 		$hash[]           = $order_total;
@@ -474,17 +474,20 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 		$currency = $order->get_currency();
 		$decimals = $this->get_price_decimals($currency);
 		$order_total = number_format( $order->get_total(), $decimals, '.', '' );
+
+		$payment_return_url = esc_url_raw($this->get_return_url( $order ));
+
 		$borgun_args = array(
 			'merchantid'             => $this->merchantid,
 			'paymentgatewayid'       => $this->paymentgatewayid,
-			'checkhash'              => $this->check_hash( $order ),
+			'checkhash'              => $this->check_hash( $order, $payment_return_url ),
 			'orderid'                => 'WC-' . $order->get_id(),
 			'reference'              => $order->get_order_number(),
 			'currency'               => $currency,
 			'language'               => $this->langpaymentpage,
 			'SourceSystem'           => 'WP' . $wp_version . ' - WC' . WC()->version . ' - BRG' . BORGUN_VERSION,
 			'buyeremail'             => $order->get_billing_email(),
-			'returnurlsuccess'       => esc_url_raw($this->get_return_url( $order )),
+			'returnurlsuccess'       => $payment_return_url,
 			'returnurlsuccessserver' => $ipnUrl,
 			'returnurlcancel'        =>$order->get_checkout_payment_url( true ),
 			'returnurlerror'         => $order->get_checkout_payment_url( true ),
@@ -502,7 +505,7 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 			if ( $total_line_item == "yes" ) {
 				$item_description = '';
 				foreach ( $order->get_items( array( 'line_item', 'fee' ) ) as $item ) {
-					$item_name = strip_tags( $item->get_name() );
+					$item_name = wp_strip_all_tags( $item->get_name() );
 					if( !empty($item_description) ) $item_description .= ', ';
 					$item_description .= $item_name;
 				}
@@ -519,7 +522,7 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 							$fee += $item->get_total_tax();
 						}
 						$fee_total = $this->round( $fee, $order );
-						$item_name = strip_tags( $item->get_name() );
+						$item_name = wp_strip_all_tags( $item->get_name() );
 						$borgun_args[ 'itemdescription_' . $item_loop ] = html_entity_decode( $item_name, ENT_NOQUOTES, 'UTF-8' );
 						$borgun_args[ 'itemcount_' . $item_loop ]       = 1;
 						$borgun_args[ 'itemunitamount_' . $item_loop ]  = $fee_total;
@@ -532,7 +535,7 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 						if ( $meta = wc_display_item_meta( $item ) ) {
 							$item_name .= ' ( ' . $meta . ' )';
 						}
-						$item_name = strip_tags($item_name);
+						$item_name = wp_strip_all_tags($item_name);
 						$item_subtotal = number_format( $order->get_item_subtotal( $item, $include_tax ), $decimals, '.', '' );
 						$itemamount = $item_subtotal * $item['qty'];
 						$borgun_args[ 'itemdescription_' . $item_loop ] = html_entity_decode( $item_name, ENT_NOQUOTES, 'UTF-8' );
@@ -597,7 +600,7 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 		} else {
 			$borgun_adr = self::BORGUN_ENDPOINT_LIVE . 'default.aspx';
 		}
-		$borgun_args       = $this->get_borgun_args( $order );
+		$borgun_args = $this->get_borgun_args( $order );
 		$borgun_args_array = array();
 		foreach ( $borgun_args as $key => $value ) {
 			$borgun_args_array[] = '<input type="hidden" name="' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" />';
@@ -608,27 +611,27 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 			$code = sprintf( '$.blockUI({
 					message: "%s",
 					baseZ: 99999,
-                    overlayCSS: { background: "#fff", opacity: 0.6 },
-                    css: {
-                        padding:        "20px",
-                        zindex:         "9999999",
-                        textAlign:      "center",
-                        color:          "#555",
-                        border:         "3px solid #aaa",
-                        backgroundColor:"#fff",
-                        cursor:         "wait",
-                        lineHeight:     "24px",
-                    }
-                });
+					overlayCSS: { background: "#fff", opacity: 0.6 },
+					css: {
+						padding:        "20px",
+						zindex:         "9999999",
+						textAlign:      "center",
+						color:          "#555",
+						border:         "3px solid #aaa",
+						backgroundColor:"#fff",
+						cursor:         "wait",
+						lineHeight:     "24px",
+					}
+				});
 
-                jQuery("#borgun_payment_form").submit();', $redirecttext );
+				jQuery("#borgun_payment_form").submit();', $redirecttext );
 			wc_enqueue_js( $code );
 		}
 
 		$cancel_btn_html = ( current_user_can( 'cancel_order', $order_id ) ) ? '<a class="button cancel" href="' . htmlspecialchars_decode($order->get_cancel_order_url()) . '">' . __( 'Cancel order &amp; restore cart', 'borgun_woocommerce' ) . '</a>' : '';
 		$html_form = '<form action="' . esc_url( $borgun_adr ) . '" method="post" id="borgun_payment_form">'
-		             . implode( '', $borgun_args_array )
-		             . '<input type="submit" class="button" id="wc_submit_borgun_payment_form" value="' . __( 'Pay via Teya', 'borgun_woocommerce' ) . '" /> ' . $cancel_btn_html . '</form>';
+					 . implode( '', $borgun_args_array )
+					 . '<input type="submit" class="button" id="wc_submit_borgun_payment_form" value="' . __( 'Pay via Teya', 'borgun_woocommerce' ) . '" /> ' . $cancel_btn_html . '</form>';
 
 		return $html_form;
 	}
@@ -646,133 +649,177 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 		);
 	}
 
-	function check_borgun_response() {
-		global $woocommerce;
-		global $wp;
-		if( empty($_POST) ) return;
-
-		$posted = array();
-		$posted['amount'] = !empty( $_POST['amount'] ) ? sanitize_text_field( $_POST['amount'] ) : '';
-		$posted['status'] = !empty( $_POST['status'] ) ? sanitize_text_field( $_POST['status'] ) : '';
-		$posted['orderid'] = !empty( $_POST['orderid'] ) ? sanitize_text_field( $_POST['orderid'] ) : '';
-		$posted['currency'] = !empty( $_POST['currency'] ) ? sanitize_text_field( $_POST['currency'] ) : '';
-		$posted['reference'] = !empty( $_POST['reference'] ) ? sanitize_text_field( $_POST['reference'] ) : '';
-		$posted['orderhash'] = !empty( $_POST['orderhash'] ) ? sanitize_text_field( $_POST['orderhash'] ) : '';
-		$posted['step'] = !empty( $_POST['step'] ) ? sanitize_text_field( $_POST['step'] ) : '';
-		$posted['errorcode'] = !empty( $_POST['errorcode'] ) ? sanitize_text_field( $_POST['errorcode'] ) : '';
-		$posted['errordescription'] = !empty( $_POST['errordescription'] ) ? sanitize_text_field( $_POST['errordescription'] ) : '';
-		$posted['authorizationcode'] = !empty( $_POST['authorizationcode'] ) ? sanitize_text_field( $_POST['authorizationcode'] ) : '';
-		$posted['maskedcardnumber'] = !empty( $_POST['creditcardnumber'] ) ? sanitize_text_field( $_POST['creditcardnumber'] ) : '';
-		$posted['refundid'] = !empty( $_POST['refundid'] ) ? sanitize_text_field( $_POST['refundid'] ) : '';
-		$posted['buyername'] = !empty( $_POST['buyername'] ) ? sanitize_text_field( $_POST['buyername'] ) : '';
-		$posted['buyeremail'] = !empty( $_POST['buyeremail'] ) ? sanitize_text_field( $_POST['buyeremail'] ) : '';
-		self::log( sprintf( __( 'check_borgun_response, posted: %s', 'borgun_woocommerce' ), wc_print_r($posted, true) ) );
-
-		if ( $posted['status'] == 'OK' ) {
-			if ( ! empty( $posted['orderid'] ) ) {
-				$order_id = NULL;
-				$order_id = apply_filters( 'borgun_'.$this->id.'_get_order_id', $order_id, $posted );
-				if ( $order_id === NULL ) {
-					$order_id = (int) str_replace( 'WC-', '', $posted['orderid'] );
-				}
-				if( !empty($order_id) ) {
-					if ( function_exists( 'wc_get_order' ) ) {
-						$order = wc_get_order( $order_id );
-					} else {
-						$order = new WC_Order( $order_id );
-					}
-					if( !empty($order) && ! $order->is_paid() ) {
-						$payment_method = $order->get_payment_method();
-						if( $payment_method == $this->id ) {
-							$hash = $this->check_order_hash( $order );
-							if ( $hash == $posted['orderhash'] ) {
-								$order_metas = array(
-									'authorizationcode'=> $posted['authorizationcode'],
-									'maskedcardnumber'=> $posted['maskedcardnumber'],
-									'refundid'=> $posted['refundid']
-								);
-								$this->save_order_metas( $order, $order_metas );
-								$order->add_order_note(  __( 'Teya payment completed', 'borgun_woocommerce' ) );
-								$order->payment_complete();
-								$woocommerce->cart->empty_cart();
-								if ( 'yes' == $this->testmode ) {
-									$borgun_adr = self::BORGUN_ENDPOINT_SANDBOX . 'default.aspx';
-								} else {
-									$borgun_adr = self::BORGUN_ENDPOINT_LIVE . 'default.aspx';
-								}
-								if ( strpos( $posted['step'], 'Payment' ) !== false ) {
-									$xml = '<PaymentNotification>Accepted</PaymentNotification>';
-									wp_remote_post(
-										$borgun_adr,
-										array(
-											'method'      => 'POST',
-											'timeout'     => 45,
-											'redirection' => 5,
-											'httpversion' => '1.0',
-											'headers'     => array( 'Content-Type' => 'text/xml' ),
-											'body'        => array( 'postdata' => $xml, 'postfield' => 'value' ),
-											'sslverify'   => false
-										)
-									);
-								}
-								if(  !empty( $this->successurl ) ){
-									wp_safe_redirect( $this->successurl );
-									exit;
-								}
-							} else {
-								$order->add_order_note( __( 'Order hash doesn\'t match', 'borgun_woocommerce' ) );
-								wp_safe_redirect( wc_get_checkout_url() );
-								exit;
-							}
-						}
-					}
-				}
-			}
+	/**
+	 * Check API payment 'payment' step response
+	 *
+	 */
+	public function handle_webhook_callback(){
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if( empty($_POST) ){
+			status_header(400);
+			exit('Invalid webhook data');
 		}
-		elseif( $posted['status'] == 'ERROR' ) {
-			$order_id = '';
-			if ( ! empty( $posted['orderid'] ) ) {
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$sanitized_data = $this->recursive_sanitize($_POST);
+		/* translators: %s: Teya Posted data */
+		self::log( sprintf( __( 'handle_webhook_callback, posted: %s', 'borgun_woocommerce' ), wc_print_r($sanitized_data, true) ) );
+		$posted = [
+			'status' => isset($sanitized_data['status']) ? $sanitized_data['status'] : '',
+			'orderid' => isset($sanitized_data['orderid']) ? $sanitized_data['orderid'] : '',
+			'orderhash' => isset($sanitized_data['orderhash']) ? $sanitized_data['orderhash'] : '',
+			'authorizationcode' => isset($sanitized_data['authorizationcode']) ? $sanitized_data['authorizationcode'] : '',
+			'maskedcardnumber' => isset($sanitized_data['maskedcardnumber']) ? $sanitized_data['maskedcardnumber'] : '',
+			'refundid' => isset($sanitized_data['refundid']) ? $sanitized_data['refundid'] : '',
+			'step'=> isset($sanitized_data['step']) ? $sanitized_data['step'] : '',
+			'reference'=> isset($sanitized_data['reference']) ? $sanitized_data['reference'] : '',
+			'errorcode'=> isset($sanitized_data['errorcode']) ? $sanitized_data['errorcode'] : '',
+			'errordescription'=> isset($sanitized_data['errordescription']) ? $sanitized_data['errordescription'] : ''
+		];
+
+		$order = NULL;
+		if ( ! empty( $posted['orderid'] ) ) {
+			$order_id = NULL;
+			$order_id = apply_filters( 'borgun_'.$this->id.'_get_order_id', $order_id, $posted );
+			if ( $order_id === NULL ) {
 				$order_id = (int) str_replace( 'WC-', '', $posted['orderid'] );
 			}
-			elseif ( !empty( $posted['reference'] )) {
-				$order_id = (int) $posted['reference'];
-			}
-			elseif ( !empty( $wp->query_vars['order-received']) ) {
-				$order_id = (int) $wp->query_vars['order-received'];
-			}
-
 			if( !empty($order_id) ) {
 				if ( function_exists( 'wc_get_order' ) ) {
 					$order = wc_get_order( $order_id );
 				} else {
 					$order = new WC_Order( $order_id );
 				}
-				if( !empty($order) ) {
-					$order->add_order_note( $message );
-					wc_add_notice( $error, 'error' );
-					if(!empty($this->errorurl)){
-						$redirect = $this->errorurl;
-					}else{
-						$redirect = $order->get_checkout_payment_url( true ) . '&status=ERROR';
-					}
-					wp_safe_redirect( $redirect );
-					exit;
-				}
+			}
+		}
+
+		if(empty($order)){
+			status_header(400);
+			exit('Order not found');
+		}
+
+		$payment_method = $order->get_payment_method();
+		if( $payment_method != $this->id ){
+			status_header(400);
+			exit('Order payment method doesn\'t match');
+		}
+
+		$hash = $this->check_order_hash( $order );
+		if ( $hash != $posted['orderhash'] ) {
+			status_header(400);
+			exit('Order hash doesn\'t match');
+		}
+
+		if ( $posted['status'] == 'OK' ) {
+			if( !$order->is_paid() ){
+				// Complete order by confirmation
+				$this->payment_status_completed($order, $posted);
+
+				$xml_data = '<?xml version="1.0" encoding="UTF-8"?>';
+				$xml_data .= '<PaymentNotification>Accepted</PaymentNotification>';
+				header( "Content-Type: application/xml; charset=utf-8" );
+				//phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo $xml_data;
+				exit();
 			}
 		}
 	}
 
-	function receipt_page( $order_id ) {
+	/**
+	 * Redirect to configured success page
+	 *
+	 */
+	public function success_page_redirect(){
+		if(!empty( $this->successurl ) ){
+			wp_safe_redirect( $this->successurl );
+			exit;
+		}
+	}
 
+	/**
+	 * Check API payment 'confirmation' response
+	 *
+	 */
+	public function check_confirmation_borgun_response($order) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if( empty($_POST) ){
+			return;
+		}
+
+		$payment_method = $order->get_payment_method();
+		if( $payment_method != $this->id ) return;
+
+		if($order->is_paid()) return;
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$sanitized_data = $this->recursive_sanitize($_POST);
+		/* translators: %s: Teya Posted data */
+		self::log( sprintf( __( 'thank_you_check_borgun_response, posted: %s', 'borgun_woocommerce' ), wc_print_r($sanitized_data, true) ) );
+		$posted = [
+			'status' => isset($sanitized_data['status']) ? $sanitized_data['status'] : '',
+			'orderid' => isset($sanitized_data['orderid']) ? $sanitized_data['orderid'] : '',
+			'orderhash' => isset($sanitized_data['orderhash']) ? $sanitized_data['orderhash'] : '',
+			'authorizationcode' => isset($sanitized_data['authorizationcode']) ? $sanitized_data['authorizationcode'] : '',
+			'maskedcardnumber' => isset($sanitized_data['maskedcardnumber']) ? $sanitized_data['maskedcardnumber'] : '',
+			'refundid' => isset($sanitized_data['refundid']) ? $sanitized_data['refundid'] : '',
+			'step'=> isset($sanitized_data['step']) ? $sanitized_data['step'] : '',
+			'reference'=> isset($sanitized_data['reference']) ? $sanitized_data['reference'] : '',
+			'errorcode'=> isset($sanitized_data['errorcode']) ? $sanitized_data['errorcode'] : '',
+			'errordescription'=> isset($sanitized_data['errordescription']) ? $sanitized_data['errordescription'] : ''
+		];
+
+
+		$posted_order_id = ( !empty($posted['orderid']) ) ? (int) str_replace( 'WC-', '', $posted['orderid'] ) : '';
+		if ( $posted_order_id != $order->get_id() ) return;
+
+		$hash = $this->check_order_hash( $order );
+		if ( $hash != $posted['orderhash'] ) {
+			$order->add_order_note( __( 'Order hash doesn\'t match', 'borgun_woocommerce' ) );
+			return;
+		}
+
+		if ( $posted['status'] == 'OK') {
+			// Complete order
+			$this->payment_status_completed($order, $posted);
+		}
+	}
+
+	/**
+	 * Handle a completed payment.
+	 *
+	 * @param WC_Order $order  Order object.
+	 * @param array    $posted Posted data.
+	 */
+	protected function payment_status_completed( $order, $posted ) {
+		global $woocommerce;
+		/* translators: %s: Teya Posted data */
+		self::log( sprintf( __( 'payment_status_completed: %s', 'borgun_woocommerce' ), wc_print_r($posted, true) ) );
+		$order_metas = array(
+			'authorizationcode'=> $posted['authorizationcode'],
+			'maskedcardnumber'=> $posted['maskedcardnumber'],
+			'refundid'=> $posted['refundid']
+		);
+		$this->save_order_metas( $order, $order_metas );
+		$message = __( 'Teya payment completed', 'borgun_woocommerce' );
+		$order->add_order_note($message);
+		$order->payment_complete($posted['authorizationcode']);
+		$woocommerce->cart->empty_cart();
+	}
+
+	function receipt_page( $order_id ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if(isset($_REQUEST['status'])){
 			$posted = array();
-			$posted['status'] = sanitize_text_field( $_REQUEST['status'] );
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$posted['status'] = sanitize_text_field( wp_unslash($_REQUEST['status']) );
 			if($posted['status'] == 'ERROR'){
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $this->generate_borgun_form( $order_id, false);
 			}
 		}else{
 			$receipttext = $this->get_translated_string($this->receipttext, 'receipttext');
-			if( !empty($receipttext) ) printf('<p>%s</p>', $receipttext );
+			if( !empty($receipttext) ) printf('<p>%s</p>', esc_html($receipttext) );
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo $this->generate_borgun_form( $order_id);
 		}
 	}
@@ -847,6 +894,7 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 	 */
 	public function get_translated_string( $string, $name ) {
 		$translated_string = $string;
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
 		$current_lang = apply_filters( 'wpml_current_language', NULL );
 		if($current_lang && class_exists('WCML_WC_Gateways') ){
 			if(defined('WCML_WC_Gateways::STRINGS_CONTEXT')){
@@ -854,17 +902,8 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 			} else {
 				$domain = 'woocommerce';
 			}
-			$translated_string = apply_filters(
-				'wpml_translate_single_string',
-				$string,
-				$domain,
-				$this->id . '_gateway_' . $name,
-				$current_lang
-			);
-		}
-
-		if ( $translated_string === $string ) {
-			$translated_string = __( $string, 'borgun_woocommerce' );
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+			$translated_string = apply_filters( 'wpml_translate_single_string', $string, $domain, $this->id . '_gateway_' . $name, $current_lang );
 		}
 
 		return $translated_string;
@@ -890,13 +929,22 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 
 		if(empty($order)) return;
 
-		if($order->get_payment_method() != $this->id ) return;
+		if($order->get_payment_method() != $this->id) return;
+
+		if($order->is_paid()) return;
 
 		$borgun_settings = get_option('woocommerce_borgun_settings');
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if (isset($_REQUEST['status'])) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			if($_REQUEST['status'] === 'ERROR'){
-				$error = ( isset($_REQUEST['errordescription']) && !empty( $_REQUEST['errordescription'] ) ) ? sanitize_text_field( $_REQUEST['errordescription'] ) : __('Payment error','borgun_woocommerce');
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$errorcode = ( isset($_REQUEST['errorcode']) && !empty( $_REQUEST['errorcode'] ) ) ? sanitize_text_field( wp_unslash($_REQUEST['errorcode']) ) : '';
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$error = ( isset($_REQUEST['errordescription']) && !empty( $_REQUEST['errordescription'] ) ) ? sanitize_text_field( wp_unslash($_REQUEST['errordescription']) ) : __('Payment error','borgun_woocommerce');
+				if(!empty($errorcode))
+					$error .= '(errorcode:' . $errorcode . ')';
 
 				$order->add_order_note( $error );
 				wc_add_notice( $error, 'error' );
@@ -907,6 +955,7 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 					exit;
 				}
 			}
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			elseif($_REQUEST['status'] === 'CANCEL'){
 				if(current_user_can( 'cancel_order', $order->get_id() )){
 					$message = __('Payment canceled by the customer','borgun_woocommerce');
@@ -982,7 +1031,7 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 		);
 
 		if ( empty( $response['body'] ) ) {
-			$message = __( 'Empty Response', 'borgun');
+			$message = __( 'Empty Response', 'borgun_woocommerce');
 			$order->add_order_note( $message );
 			return new WP_Error( 'error', $message );
 		} elseif ( is_wp_error( $response ) ) {
@@ -995,12 +1044,14 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 		if( !empty($body) ) {
 			parse_str($body, $result);
 			if( isset($result['action_code']) && $result['action_code'] == '000' && isset($result['ret']) && $result['ret'] == true ) {
-				$message = sprintf( __('Refunded %s %s via Teya', 'borgun_woocommerce' ), $amount, $order->get_currency() );
+				/* translators: 1: Refund amount 2: Order currency */
+				$message = sprintf( __('Refunded %1$s %2$s via Teya', 'borgun_woocommerce' ), $amount, $order->get_currency() );
 				$order->add_order_note( $message );
 				return true;
 			}
 			else {
-				$message = sprintf( __('Teya error: %s, Amount: %s %s', 'borgun_woocommerce' ), $result['message'], $amount, $order->get_currency() );
+				/* translators: 1: Refund reason 2: Refund amount 3: Order currency */
+				$message = sprintf( __('Teya error: %1$s, Amount: %2$s %3$s', 'borgun_woocommerce' ), $result['message'], $amount, $order->get_currency() );
 				$order->add_order_note( $message );
 				return new WP_Error( 'error', $result['message'] );
 			}
@@ -1036,6 +1087,25 @@ class WC_Gateway_Borgun extends WC_Payment_Gateway {
 			}
 		}
 
-		return apply_filters($this->id.'_price_decimals', $decimals, $currency);
+		return apply_filters('borgun_price_decimals', $decimals, $currency);
+	}
+
+	/**
+	 * Sanitize values
+	 */
+	private function recursive_sanitize( $data ) {
+		if ( is_array( $data ) || is_object( $data ) ) {
+			foreach ( $data as $key => &$value ) {
+				$key = sanitize_key( $key );
+				$value = $this->recursive_sanitize( $value );
+			}
+			return $data;
+		} else {
+			if(is_string($data)){
+				return sanitize_text_field( $data );
+			}else{
+				return (float)$data;
+			}
+		}
 	}
 }

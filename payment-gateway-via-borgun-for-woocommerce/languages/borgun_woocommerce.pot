@@ -11,7 +11,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-11-26 12:42+0000\n"
+"POT-Creation-Date: 2025-12-10 11:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: Loco https://localise.biz/\n"
 "X-Domain: borgun_woocommerce\n"
@@ -44,17 +44,12 @@ msgstr ""
 msgid "Buyer will see this text before redirecting to Teya"
 msgstr ""
 
-#: includes/class-wc-gateway-borgun.php:612
+#: includes/class-wc-gateway-borgun.php:631
 msgid "Cancel order &amp; restore cart"
 msgstr ""
 
 #: includes/class-wc-gateway-borgun.php:346
 msgid "Cancel Page URL"
-msgstr ""
-
-#: includes/class-wc-gateway-borgun.php:653
-#, php-format
-msgid "check_borgun_response, posted: %s"
 msgstr ""
 
 #: includes/class-wc-gateway-borgun.php:203
@@ -80,12 +75,16 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: includes/class-wc-gateway-borgun.php:558
+#: includes/class-wc-gateway-borgun.php:577
 msgid "Discount"
 msgstr ""
 
 #: includes/class-wc-gateway-borgun.php:306
 msgid "Dutch"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:1034
+msgid "Empty Response"
 msgstr ""
 
 #: includes/class-wc-gateway-borgun.php:366
@@ -138,6 +137,12 @@ msgstr ""
 msgid "German"
 msgstr ""
 
+#. %s: Teya Posted data
+#: includes/class-wc-gateway-borgun.php:662
+#, php-format
+msgid "handle_webhook_callback, posted: %s"
+msgstr ""
+
 #: includes/class-wc-gateway-borgun.php:311
 msgid "Hrvatski"
 msgstr ""
@@ -156,6 +161,12 @@ msgstr ""
 
 #: includes/class-wc-gateway-borgun.php:295
 msgid "Icelandic"
+msgstr ""
+
+#: includes/class-wc-gateway-borgun.php:336
+msgid ""
+"If checked Teya receipt page is not displayed and the buyer is redirected to "
+"the Success Page URL upon successful payment."
 msgstr ""
 
 #: includes/class-wc-gateway-borgun.php:301
@@ -182,7 +193,7 @@ msgstr ""
 msgid "Notification Email"
 msgstr ""
 
-#: includes/class-wc-gateway-borgun.php:707
+#: includes/class-wc-gateway-borgun.php:770
 msgid "Order hash doesn't match"
 msgstr ""
 
@@ -190,7 +201,7 @@ msgstr ""
 msgid "Order line items grouping"
 msgstr ""
 
-#: includes/class-wc-gateway-borgun.php:615
+#: includes/class-wc-gateway-borgun.php:634
 msgid "Pay via Teya"
 msgstr ""
 
@@ -199,11 +210,11 @@ msgstr ""
 msgid "Pay with your credit card via Teya."
 msgstr ""
 
-#: includes/class-wc-gateway-borgun.php:896
+#: includes/class-wc-gateway-borgun.php:961
 msgid "Payment canceled by the customer"
 msgstr ""
 
-#: includes/class-wc-gateway-borgun.php:883
+#: includes/class-wc-gateway-borgun.php:945
 msgid "Payment error"
 msgstr ""
 
@@ -213,6 +224,12 @@ msgstr ""
 
 #. Name of the plugin
 msgid "Payment gateway via Teya SecurePay for WooCommerce"
+msgstr ""
+
+#. %s: Teya Posted data
+#: includes/class-wc-gateway-borgun.php:796
+#, php-format
+msgid "payment_status_completed: %s"
 msgstr ""
 
 #: includes/class-wc-gateway-borgun.php:262
@@ -235,13 +252,14 @@ msgstr ""
 msgid "Redirect text"
 msgstr ""
 
-#: includes/class-wc-gateway-borgun.php:937
+#: includes/class-wc-gateway-borgun.php:1002
 msgid "Refund failed."
 msgstr ""
 
-#: includes/class-wc-gateway-borgun.php:982
+#. 1: Refund amount 2: Order currency
+#: includes/class-wc-gateway-borgun.php:1048
 #, php-format
-msgid "Refunded %s %s via Teya"
+msgid "Refunded %1$s %2$s via Teya"
 msgstr ""
 
 #: includes/class-wc-gateway-borgun.php:312
@@ -269,7 +287,7 @@ msgid "Serbian"
 msgstr ""
 
 #. %s: Shipping
-#: includes/class-wc-gateway-borgun.php:533
+#: includes/class-wc-gateway-borgun.php:552
 #, php-format
 msgid "Shipping (%s)"
 msgstr ""
@@ -302,7 +320,7 @@ msgstr ""
 msgid "Tactica"
 msgstr ""
 
-#: includes/class-wc-gateway-borgun.php:540
+#: includes/class-wc-gateway-borgun.php:559
 msgid "Taxes"
 msgstr ""
 
@@ -312,12 +330,13 @@ msgstr ""
 msgid "Teya"
 msgstr ""
 
-#: includes/class-wc-gateway-borgun.php:987
+#. 1: Refund reason 2: Refund amount 3: Order currency
+#: includes/class-wc-gateway-borgun.php:1054
 #, php-format
-msgid "Teya error: %s, Amount: %s %s"
+msgid "Teya error: %1$s, Amount: %2$s %3$s"
 msgstr ""
 
-#: includes/class-wc-gateway-borgun.php:679
+#: includes/class-wc-gateway-borgun.php:803
 msgid "Teya payment completed"
 msgstr ""
 
@@ -342,6 +361,12 @@ msgstr ""
 #: includes/class-wc-gateway-borgun.php:331
 msgid ""
 "Thank you for your order. We are now redirecting you to Teya to make payment."
+msgstr ""
+
+#. %s: Teya Posted data
+#: includes/class-wc-gateway-borgun.php:733
+#, php-format
+msgid "thank_you_check_borgun_response, posted: %s"
 msgstr ""
 
 #: includes/class-wc-gateway-borgun.php:255

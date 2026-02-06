@@ -2,10 +2,10 @@
 Contributors: tacticais
 Tags: credit card, gateway, saltPay, teya, woocommerce
 Requires at least: 4.4
-Tested up to: 6.8.1
-WC tested up to: 9.8.5
+Tested up to: 6.9
+WC tested up to: 10.4.3
 WC requires at least: 3.2.3
-Stable tag: 1.3.38
+Stable tag: 1.3.41
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -39,6 +39,16 @@ Yes, the plugin supports test mode.
 3. Payment screen
 
 == Changelog ==
+
+= 1.3.41 =
+* Fix issue with Teya payments confirmations data processing
+
+= 1.3.40 =
+* Code improvements
+* Tested with WordPress 6.9 and WooCommerce 10.3.6
+
+= 1.3.39 =
+* Tested with WordPress 6.8.3 and WooCommerce 10.3.5
 
 = 1.3.37 =
 * Update teya logo
